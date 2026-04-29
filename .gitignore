@@ -1,0 +1,34 @@
+# Environnement virtuel
+venv/
+.venv/
+env/
+
+# Données brutes (trop volumineuses pour GitHub)
+data/raw/
+data/processed/
+data/train_test/
+
+# Modèles entraînés (optionnel — à inclure si légers)
+# models/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Churn Predictor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            width: 100%;
+            max-width: 560px;
+        }
+        h1 { color: #333; font-size: 1.8rem; margin-bottom: 6px; }
+        .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 25px; }
+
+        .form-group { margin: 16px 0; }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        .hint { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .buttons { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        button:hover   { opacity: 0.88; transform: translateY(-1px); }
+        button:active  { transform: translateY(0); }
+        #btn-predict   { background: #27ae60; color: white; }
+        #btn-segment   { background: #2980b9; color: white; }
+        #btn-regression{ background: #8e44ad; color: white; }
+
+        #result {
+            margin-top: 22px;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+        .churn      { background: #ffe0e0; color: #c0392b; border-left: 4px solid #c0392b; }
+        .no-churn   { background: #e0f5e0; color: #1e8449; border-left: 4px solid #27ae60; }
+        .segment    { background: #e8f4fd; color: #1a5276; border-left: 4px solid #2980b9; }
+        .regression { background: #f5eef8; color: #6c3483; border-left: 4px solid #8e44ad; }
+        .error      { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        .raw-value  { font-size: 12px; font-weight: 400; margin-top: 6px; color: inherit; opacity: 0.7; }
+        .proba      { font-size: 13px; font-weight: 400; margin-top: 4px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🔍 Churn Predictor</h1>
+    <p class="subtitle">Analyse comportementale client — E-commerce</p>
+
+    <div class="form-group">
+        <label>📅 Recency (jours depuis dernier achat)</label>
+        <input type="number" id="recency" value="10" min="0">
+        <div class="hint">Faible = client récent et actif | Élevé = client inactif</div>
+    </div>
+    <div class="form-group">
+        <label>🔁 Frequency (nb de commandes)</label>
+        <input type="number" id="frequency" value="5" min="0">
+        <div class="hint">Élevé = client fidèle et régulier</div>
+    </div>
+    <div class="form-group">
+        <label>💷 Monetary (total dépensé en £)</label>
+        <input type="number" id="monetary" value="200" min="0">
+        <div class="hint">Élevé = client à forte valeur (VIP)</div>
+    </div>
+
+    <div class="buttons">
+        <button id="btn-predict"    onclick="predictChurn()">🚀 Prédire Churn</button>
+        <button id="btn-segment"    onclick="segmentClient()">📊 Segmenter</button>
+        <button id="btn-regression" onclick="regressMonetary()">💰 Estimer valeur</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    function getData() {
+        return [
+            parseFloat(document.getElementById("recency").value),
+            parseFloat(document.getElementById("frequency").value),
+            parseFloat(document.getElementById("monetary").value)
+        ];
+    }
+
+    function showResult(html, cssClass) {
+        const div = document.getElementById("result");
+        div.innerHTML = html;
+        div.className = cssClass;
+        div.style.display = "block";
+    }
+
+    async function apiCall(url, data) {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({data: data})
+        });
+        if (!res.ok) throw new Error("Erreur serveur " + res.status);
+        return await res.json();
+    }
+
+    async function predictChurn() {
+        try {
+            const json = await apiCall("/predict", getData());
+            if (json.error) throw new Error(json.error);
+            const pct = (json.probability * 100).toFixed(1);
+            if (json.churn === 1) {
+                showResult(
+                    `${json.label}
+                    <div class="proba">Probabilité de churn : <strong>${pct}%</strong></div>
+                    <div class="raw-value">churn = ${json.churn}</div>`,
+                    "churn"
+                );
+            } else {
+                showResult(
+                    `${json.label}
+                    <div class="proba">Probabilité de churn : <strong>${pct}%</strong></div>
+                    <div class="raw-value">churn = ${json.churn}</div>`,
+                    "no-churn"
+                );
+            }
+        } catch(err) { showResult("❌ " + err.message, "error"); }
+    }
+
+    async function segmentClient() {
+        try {
+            const json = await apiCall("/segment", getData());
+            if (json.error) throw new Error(json.error);
+            showResult(
+                `📊 ${json.label}
+                <div class="raw-value">segment = ${json.segment}</div>`,
+                "segment"
+            );
+        } catch(err) { showResult("❌ " + err.message, "error"); }
+    }
+
+    async function regressMonetary() {
+        try {
+            const json = await apiCall("/regression", getData());
+            if (json.error) throw new Error(json.error);
+            showResult(
+                `💰 ${json.label}
+                <div class="raw-value">predicted_monetary = £${json.predicted_monetary}</div>`,
+                "regression"
+            );
+        } catch(err) { showResult("❌ " + err.message, "error"); }
+    }
+</script>
+</body>
+</html>
