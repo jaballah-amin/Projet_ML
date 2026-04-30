@@ -191,7 +191,8 @@ def plot_correlation(X, save_path="reports/correlation_heatmap.png"):
     plt.close()
     print(f"✅ Heatmap sauvegardée : {save_path}")
 
-
+from src.utils import compute_vif
+compute_vif(X) 
 # ─────────────────────────────────────────────
 # 8.  Pipeline principal
 # ─────────────────────────────────────────────
