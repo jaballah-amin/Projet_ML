@@ -22,31 +22,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 def compute_vif(X):
     """
     Calcule le VIF pour chaque feature.
-    VIF > 10 = multicolinéarité sévère (à supprimer).
-    Mentionné explicitement dans le PDF du prof.
-    """
-    vif_data = pd.DataFrame()
-    vif_data["feature"] = X.columns
-    vif_data["VIF"] = [
-        variance_inflation_factor(X.values, i)
-        for i in range(X.shape[1])
-    ]
-    print("\n--- VIF (Variance Inflation Factor) ---")
-    print(vif_data)
-    if (vif_data["VIF"] > 10).any():
-        print("⚠️ Multicolinéarité sévère détectée (VIF > 10)")
-    else:
-        print("✅ Pas de multicolinéarité sévère")
-    return vif_data
-
-
-=======
-
-def compute_vif(X):
-    """
-    Calcule le VIF pour chaque feature.
-    VIF > 10 = multicolinéarité sévère (à supprimer).
-    Mentionné explicitement dans le PDF du prof.
+    VIF > 10 = multicolinéarité sévère.
     """
     vif_data = pd.DataFrame()
     vif_data["feature"] = X.columns

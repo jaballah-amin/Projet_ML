@@ -191,8 +191,7 @@ def plot_correlation(X, save_path="reports/correlation_heatmap.png"):
     plt.close()
     print(f"✅ Heatmap sauvegardée : {save_path}")
 
-from src.utils import compute_vif
-compute_vif(X) 
+
 # ─────────────────────────────────────────────
 # 8.  Pipeline principal
 # ─────────────────────────────────────────────
@@ -215,6 +214,8 @@ def preprocess(data_path="data/raw/data.csv"):
 
     # ── Analyse corrélation (sur X brut) ───────
     plot_correlation(X)
+    from utils import compute_vif
+    compute_vif(X) 
 
     # ── Sauvegarde données traitées ─────────────
     rfm.to_csv("data/processed/rfm_cleaned.csv", index=False)
