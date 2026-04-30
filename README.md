@@ -1,5 +1,5 @@
 # 🛒 Churn Prediction & Customer Segmentation
-### Projet Machine Learning — E-Commerce Retail (GI2)
+### Projet Machine Learning — E-Commerce Retail 
 
 ---
 
@@ -173,4 +173,4 @@ pandas, numpy, scikit-learn, flask, joblib, matplotlib, seaborn
 
 ## 👤 Auteur
 
-Projet réalisé par ** Mohamed Amin JABALLAH** —  GI2s1 (2025-2026)
+Projet réalisé par ** JABALLAH Mohamed Amin ** —  GI2s1 (2025-2026)
