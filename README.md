@@ -168,7 +168,14 @@ Invoke-RestMethod -Uri "http://127.0.0.1:5000/regression" `
 ```
 pandas, numpy, scikit-learn, flask, joblib, matplotlib, seaborn
 ```
+## ⚠️ Note sur le dataset
 
+Le PDF pédagogique décrit un dataset enrichi de 52 features 
+(comportementales, RFM, catégorielles, IP, dates, etc.).
+
+Ce projet utilise le dataset public Kaggle (carrie1/ecommerce-data) 
+qui contient 8 colonnes brutes de transactions, à partir desquelles 
+les features RFM (Recency, Frequency, Monetary) sont reconstruites.
 ---
 
 ## 👤 Auteur
